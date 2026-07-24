@@ -88,10 +88,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Campus Connect — University Portal" },
       {
         property: "og:description",
-        content: "Everything students need in one place: notes, projects, marketplace, and campus voice.",
+        content: "Campus Connect is a centralized university portal for notes, projects, marketplace, clubs, polls, and more.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Campus Connect — University Portal" },
+      { name: "twitter:description", content: "Campus Connect is a centralized university portal for notes, projects, marketplace, clubs, polls, and more." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2a5c787f-2bda-4d4d-b834-78d475e8f21a/id-preview-79a30c85--13b8b67b-89b4-41ac-b24b-bad2a7101595.lovable.app-1784877419115.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2a5c787f-2bda-4d4d-b834-78d475e8f21a/id-preview-79a30c85--13b8b67b-89b4-41ac-b24b-bad2a7101595.lovable.app-1784877419115.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
