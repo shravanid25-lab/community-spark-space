@@ -3,7 +3,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/app-shell";
+import { PageHeader, useProfile } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +42,7 @@ const noteSchema = z.object({
 function NotesPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const { data: me } = useProfile();
 
   const notes = useQuery({
     queryKey: ["notes"],
@@ -120,7 +121,7 @@ function NotesPage() {
     upload.mutate({ ...parsed.data, description: parsed.data.description ?? "", file });
   }
 
-  const currentUserId = notes.data?.[0]?.uploader_id; // placeholder — real check below
+  const currentUserId = me?.user?.id;
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
