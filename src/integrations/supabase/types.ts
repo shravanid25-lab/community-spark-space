@@ -338,6 +338,38 @@ export type Database = {
           },
         ]
       }
+      project_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          project_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          project_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -396,6 +428,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_project_participant: {
+        Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
     }
