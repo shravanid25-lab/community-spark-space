@@ -23,8 +23,18 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+const PCU_DOMAIN = "pcu.edu.in";
+const pcuEmail = z
+  .string()
+  .trim()
+  .email("Enter a valid email")
+  .max(255)
+  .refine((v) => v.toLowerCase().endsWith(`@${PCU_DOMAIN}`), {
+    message: `Only @${PCU_DOMAIN} emails are allowed`,
+  });
+
 const signInSchema = z.object({
-  email: z.string().trim().email("Enter a valid email").max(255),
+  email: pcuEmail,
   password: z.string().min(6, "Password must be at least 6 characters").max(72),
 });
 
@@ -142,7 +152,7 @@ function AuthPage() {
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="you@university.edu" required />
+                  <Input id="email" name="email" type="email" placeholder="you@pcu.edu.in" required />
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
@@ -172,7 +182,7 @@ function AuthPage() {
                 </div>
                 <div>
                   <Label htmlFor="su_email">Email</Label>
-                  <Input id="su_email" name="email" type="email" placeholder="you@university.edu" required />
+                  <Input id="su_email" name="email" type="email" placeholder="you@pcu.edu.in" required />
                 </div>
                 <div>
                   <Label htmlFor="su_password">Password</Label>
