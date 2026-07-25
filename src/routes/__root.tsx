@@ -78,7 +78,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#2563eb" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Campus" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { title: "Campus Connect — University Portal" },
       {
         name: "description",
@@ -135,8 +140,20 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      // Enforce @pcu.edu.in on OAuth sign-ins
+      if (event === "SIGNED_IN" && session?.user?.email) {
+        const domain = session.user.email.split("@")[1]?.toLowerCase();
+        if (domain !== "pcu.edu.in") {
+          await supabase.auth.signOut();
+          if (typeof window !== "undefined") {
+            window.alert("Only @pcu.edu.in accounts are allowed on Campus Connect.");
+            window.location.assign("/auth");
+          }
+          return;
+        }
+      }
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
