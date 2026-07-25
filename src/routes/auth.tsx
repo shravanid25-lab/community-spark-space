@@ -152,7 +152,7 @@ function AuthPage() {
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="you@university.edu" required />
+                  <Input id="email" name="email" type="email" placeholder="you@pcu.edu.in" required />
                 </div>
                 <div>
                   <Label htmlFor="password">Password</Label>
@@ -182,7 +182,7 @@ function AuthPage() {
                 </div>
                 <div>
                   <Label htmlFor="su_email">Email</Label>
-                  <Input id="su_email" name="email" type="email" placeholder="you@university.edu" required />
+                  <Input id="su_email" name="email" type="email" placeholder="you@pcu.edu.in" required />
                 </div>
                 <div>
                   <Label htmlFor="su_password">Password</Label>
