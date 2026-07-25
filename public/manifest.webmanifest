@@ -1,0 +1,16 @@
+{
+  "name": "Campus Connect",
+  "short_name": "Campus",
+  "description": "PCU Campus Connect — notes, projects, marketplace, clubs, polls.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/app-icon-512.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}
