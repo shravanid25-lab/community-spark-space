@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      borrow_requests: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          item_id: string
+          message: string | null
+          requester_id: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          item_id: string
+          message?: string | null
+          requester_id: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          item_id?: string
+          message?: string | null
+          requester_id?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "borrow_requests_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clubs: {
         Row: {
           banner_path: string | null
@@ -124,7 +168,9 @@ export type Database = {
           description: string | null
           id: string
           image_path: string | null
+          listing_type: Database["public"]["Enums"]["marketplace_listing_type"]
           price: number
+          rent_period: string | null
           seller_id: string
           sold: boolean
           title: string
@@ -134,7 +180,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_path?: string | null
+          listing_type?: Database["public"]["Enums"]["marketplace_listing_type"]
           price?: number
+          rent_period?: string | null
           seller_id: string
           sold?: boolean
           title: string
@@ -144,7 +192,9 @@ export type Database = {
           description?: string | null
           id?: string
           image_path?: string | null
+          listing_type?: Database["public"]["Enums"]["marketplace_listing_type"]
           price?: number
+          rent_period?: string | null
           seller_id?: string
           sold?: boolean
           title?: string
@@ -462,6 +512,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "student"
       lost_found_kind: "lost" | "found"
+      marketplace_listing_type: "sale" | "rent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -591,6 +642,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "student"],
       lost_found_kind: ["lost", "found"],
+      marketplace_listing_type: ["sale", "rent"],
     },
   },
 } as const
