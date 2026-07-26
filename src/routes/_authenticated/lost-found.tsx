@@ -153,7 +153,7 @@ function LostFoundPage() {
   const filtered = items.data?.filter((i) => filter === "all" || i.kind === filter) ?? [];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <PageHeader
         title="Lost & Found"
         description="Report lost items or help return found ones to their owners."
