@@ -190,7 +190,7 @@ function ClubsPage() {
                   <Plus className="size-4 mr-2" /> New Club
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Create a club</DialogTitle>
                 </DialogHeader>
@@ -218,7 +218,7 @@ function ClubsPage() {
                   <Plus className="size-4 mr-2" /> New Event
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Create an event</DialogTitle>
                 </DialogHeader>
@@ -227,7 +227,7 @@ function ClubsPage() {
                     <Label htmlFor="title">Title</Label>
                     <Input id="title" name="title" placeholder="Annual Tech Symposium" required />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label htmlFor="starts_at">Starts at</Label>
                       <Input id="starts_at" name="starts_at" type="datetime-local" required />

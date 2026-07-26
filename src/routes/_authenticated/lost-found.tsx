@@ -164,12 +164,12 @@ function LostFoundPage() {
                 <Plus className="size-4 mr-2" /> Report Item
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Report an item</DialogTitle>
               </DialogHeader>
               <form onSubmit={onSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="kind">Type</Label>
                     <Select name="kind" defaultValue="lost">

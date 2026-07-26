@@ -156,7 +156,7 @@ function PollsPage() {
                 <Plus className="size-4 mr-2" /> New Poll
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create a poll</DialogTitle>
               </DialogHeader>

@@ -181,7 +181,7 @@ function ProjectsPage() {
                 <Plus className="size-4 mr-2" /> New Project
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Post a project — request members</DialogTitle>
               </DialogHeader>
