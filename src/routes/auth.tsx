@@ -40,7 +40,6 @@ const signInSchema = z.object({
 
 const signUpSchema = signInSchema.extend({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),
-  student_id: z.string().trim().max(50).optional().or(z.literal("")),
   department: z.string().trim().max(80).optional().or(z.literal("")),
 });
 
