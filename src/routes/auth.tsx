@@ -182,15 +182,9 @@ function AuthPage() {
                   <Label htmlFor="su_full_name">Full name</Label>
                   <Input id="su_full_name" name="full_name" placeholder="Alex Rivera" required />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label htmlFor="su_student_id">Student ID</Label>
-                    <Input id="su_student_id" name="student_id" placeholder="2024-00123" />
-                  </div>
-                  <div>
-                    <Label htmlFor="su_department">Department</Label>
-                    <Input id="su_department" name="department" placeholder="CS" />
-                  </div>
+                <div>
+                  <Label htmlFor="su_department">Department</Label>
+                  <Input id="su_department" name="department" placeholder="Computer Science" />
                 </div>
                 <div>
                   <Label htmlFor="su_email">Email</Label>
