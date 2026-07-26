@@ -85,18 +85,16 @@ function ProjectsPage() {
   const teammates = useQuery({
     queryKey: ["teammates", memberQuery],
     queryFn: async () => {
-      const q = memberQuery.trim();
-      let req = supabase
-        .from("profiles")
-        .select("id, full_name, department, student_id")
-        .limit(30);
-      if (q) req = req.or(`full_name.ilike.%${q}%,department.ilike.%${q}%`);
-      const { data, error } = await req;
+      const { data, error } = await supabase.rpc("search_students", {
+        _q: memberQuery.trim() || undefined,
+        _limit: 30,
+      });
       if (error) throw error;
-      return (data ?? []).filter((p) => p.id !== me?.user?.id);
+      return data ?? [];
     },
     enabled: !!me?.user?.id,
   });
+
 
   const create = useMutation({
     mutationFn: async (payload: { title: string; description: string; tags: string[] }) => {
@@ -328,7 +326,7 @@ function ProjectsPage() {
                 <div className="min-w-0">
                   <div className="text-sm font-semibold truncate">{t.full_name || "Unnamed student"}</div>
                   <div className="text-xs text-slate-500 truncate">
-                    {t.department || "—"} {t.student_id ? `· ${t.student_id}` : ""}
+                    {t.department || "—"}
                   </div>
                 </div>
               </div>
@@ -385,10 +383,7 @@ function ProjectDetailDialog({
       if (error) throw error;
       const ids = (rows ?? []).map((r) => r.user_id);
       if (ids.length === 0) return [] as Member[];
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, department")
-        .in("id", ids);
+      const { data: profs } = await supabase.rpc("profiles_basic", { _ids: ids });
       const byId = new Map((profs ?? []).map((p) => [p.id, p]));
       return (rows ?? []).map((r) => ({
         ...r,
@@ -544,10 +539,7 @@ function ProjectChat({
     queryKey: ["project", projectId, "message-senders", senderIds.join(",")],
     queryFn: async () => {
       if (senderIds.length === 0) return new Map<string, string>();
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", senderIds);
+      const { data } = await supabase.rpc("profiles_basic", { _ids: senderIds });
       return new Map((data ?? []).map((p) => [p.id, p.full_name ?? "Student"]));
     },
     enabled: senderIds.length > 0,

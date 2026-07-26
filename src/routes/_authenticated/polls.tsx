@@ -62,21 +62,22 @@ function PollsPage() {
         .order("created_at", { ascending: false });
       if (!pList?.length) return [];
       const ids = pList.map((p) => p.id);
-      const [{ data: opts }, { data: votes }] = await Promise.all([
+      const [{ data: opts }, { data: tallies }, { data: myVotes }] = await Promise.all([
         supabase.from("poll_options").select("id, poll_id, label, position").in("poll_id", ids).order("position"),
-        supabase.from("poll_votes").select("poll_id, option_id, voter_id").in("poll_id", ids),
+        supabase.rpc("poll_results", { _poll_ids: ids }),
+        supabase.from("poll_votes").select("poll_id, option_id").in("poll_id", ids),
       ]);
       return pList.map((p) => {
-        const pollVotes = votes?.filter((v) => v.poll_id === p.id) ?? [];
-        const total = pollVotes.length;
+        const pollTallies = (tallies ?? []).filter((t) => t.poll_id === p.id);
+        const total = pollTallies.reduce((s, t) => s + Number(t.votes), 0);
         const options =
           opts
             ?.filter((o) => o.poll_id === p.id)
             .map((o) => {
-              const count = pollVotes.filter((v) => v.option_id === o.id).length;
+              const count = Number(pollTallies.find((t) => t.option_id === o.id)?.votes ?? 0);
               return { id: o.id, label: o.label, count, pct: total ? Math.round((count / total) * 100) : 0 };
             }) ?? [];
-        const myVote = uid ? pollVotes.find((v) => v.voter_id === uid)?.option_id ?? null : null;
+        const myVote = uid ? (myVotes ?? []).find((v) => v.poll_id === p.id)?.option_id ?? null : null;
         return { ...p, options, total, myVote };
       });
     },

@@ -434,6 +434,30 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      poll_results: {
+        Args: { _poll_ids: string[] }
+        Returns: {
+          option_id: string
+          poll_id: string
+          votes: number
+        }[]
+      }
+      profiles_basic: {
+        Args: { _ids: string[] }
+        Returns: {
+          department: string
+          full_name: string
+          id: string
+        }[]
+      }
+      search_students: {
+        Args: { _limit?: number; _q?: string }
+        Returns: {
+          department: string
+          full_name: string
+          id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "student"

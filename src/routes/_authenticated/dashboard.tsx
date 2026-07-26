@@ -79,19 +79,18 @@ function Dashboard() {
         .limit(1)
         .maybeSingle();
       if (!poll) return null;
-      const [{ data: options }, { data: votes }] = await Promise.all([
+      const [{ data: options }, { data: tallies }] = await Promise.all([
         supabase.from("poll_options").select("id, label, position").eq("poll_id", poll.id).order("position"),
-        supabase.from("poll_votes").select("option_id").eq("poll_id", poll.id),
+        supabase.rpc("poll_results", { _poll_ids: [poll.id] }),
       ]);
-      const total = votes?.length ?? 0;
+      const total = (tallies ?? []).reduce((s, t) => s + Number(t.votes), 0);
       return {
         poll,
         options:
-          options?.map((o) => ({
-            ...o,
-            count: votes?.filter((v) => v.option_id === o.id).length ?? 0,
-            pct: total ? Math.round(((votes?.filter((v) => v.option_id === o.id).length ?? 0) / total) * 100) : 0,
-          })) ?? [],
+          options?.map((o) => {
+            const count = Number((tallies ?? []).find((t) => t.option_id === o.id)?.votes ?? 0);
+            return { ...o, count, pct: total ? Math.round((count / total) * 100) : 0 };
+          }) ?? [],
         total,
       };
     },
