@@ -383,10 +383,7 @@ function ProjectDetailDialog({
       if (error) throw error;
       const ids = (rows ?? []).map((r) => r.user_id);
       if (ids.length === 0) return [] as Member[];
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, department")
-        .in("id", ids);
+      const { data: profs } = await supabase.rpc("profiles_basic", { _ids: ids });
       const byId = new Map((profs ?? []).map((p) => [p.id, p]));
       return (rows ?? []).map((r) => ({
         ...r,
@@ -542,10 +539,7 @@ function ProjectChat({
     queryKey: ["project", projectId, "message-senders", senderIds.join(",")],
     queryFn: async () => {
       if (senderIds.length === 0) return new Map<string, string>();
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", senderIds);
+      const { data } = await supabase.rpc("profiles_basic", { _ids: senderIds });
       return new Map((data ?? []).map((p) => [p.id, p.full_name ?? "Student"]));
     },
     enabled: senderIds.length > 0,
