@@ -86,7 +86,7 @@ function ProjectsPage() {
     queryKey: ["teammates", memberQuery],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("search_students", {
-        _q: memberQuery.trim() || null,
+        _q: memberQuery.trim() || undefined,
         _limit: 30,
       });
       if (error) throw error;
@@ -326,7 +326,7 @@ function ProjectsPage() {
                 <div className="min-w-0">
                   <div className="text-sm font-semibold truncate">{t.full_name || "Unnamed student"}</div>
                   <div className="text-xs text-slate-500 truncate">
-                    {t.department || "—"} {t.student_id ? `· ${t.student_id}` : ""}
+                    {t.department || "—"}
                   </div>
                 </div>
               </div>
