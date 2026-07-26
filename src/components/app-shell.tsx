@@ -83,12 +83,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       await qc.cancelQueries();
       qc.clear();
       await supabase.auth.signOut();
+      setMobileOpen(false);
       toast.success("Your account and data have been deleted");
-      navigate({ to: "/auth", replace: true });
+      // Hard reload guarantees no stale session or cached protected state remains.
+      window.location.replace("/auth");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not delete account");
-    } finally {
       setDeleting(false);
+      toast.error(e instanceof Error ? e.message : "Could not delete account");
     }
   }
 
