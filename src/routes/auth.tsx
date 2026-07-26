@@ -73,20 +73,33 @@ function AuthPage() {
     const parsed = signUpSchema.safeParse(Object.fromEntries(form));
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
         emailRedirectTo: window.location.origin,
         data: {
           full_name: parsed.data.full_name,
-          student_id: parsed.data.student_id || null,
           department: parsed.data.department || null,
         },
       },
     });
+    if (error) {
+      setLoading(false);
+      return toast.error(error.message);
+    }
+    // Sign the new account straight in so email + password works immediately.
+    if (!data.session) {
+      const signIn = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (signIn.error) {
+        setLoading(false);
+        return toast.error(signIn.error.message);
+      }
+    }
     setLoading(false);
-    if (error) return toast.error(error.message);
     toast.success("Account created — welcome to Campus Connect!");
     navigate({ to: "/dashboard", replace: true });
   }
