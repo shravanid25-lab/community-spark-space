@@ -203,6 +203,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0 bg-card">
+              <SheetTitle className="sr-only">Campus Connect navigation</SheetTitle>
               {sidebar}
             </SheetContent>
           </Sheet>
