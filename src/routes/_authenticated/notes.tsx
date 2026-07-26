@@ -124,7 +124,7 @@ function NotesPage() {
   const currentUserId = me?.user?.id;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <PageHeader
         title="Note Sharing"
         description="Peer-verified lecture notes and study material for every course."
@@ -135,12 +135,12 @@ function NotesPage() {
                 <Upload className="size-4 mr-2" /> Upload Note
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Upload a note</DialogTitle>
               </DialogHeader>
               <form onSubmit={onSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="course_code">Course code</Label>
                     <Input id="course_code" name="course_code" placeholder="CS302" required />
@@ -169,7 +169,7 @@ function NotesPage() {
         }
       />
 
-      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+      <div className="bg-card rounded-2xl border border-border overflow-x-auto shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/60">

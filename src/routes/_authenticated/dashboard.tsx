@@ -99,7 +99,7 @@ function Dashboard() {
   const name = me?.profile?.full_name?.split(" ")[0] || "there";
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <PageHeader
         title={`Welcome back, ${name}`}
         description={me?.profile?.department ? `${me.profile.department} • Campus Connect` : "Campus Connect"}
