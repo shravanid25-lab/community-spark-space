@@ -85,18 +85,16 @@ function ProjectsPage() {
   const teammates = useQuery({
     queryKey: ["teammates", memberQuery],
     queryFn: async () => {
-      const q = memberQuery.trim();
-      let req = supabase
-        .from("profiles")
-        .select("id, full_name, department, student_id")
-        .limit(30);
-      if (q) req = req.or(`full_name.ilike.%${q}%,department.ilike.%${q}%`);
-      const { data, error } = await req;
+      const { data, error } = await supabase.rpc("search_students", {
+        _q: memberQuery.trim() || null,
+        _limit: 30,
+      });
       if (error) throw error;
-      return (data ?? []).filter((p) => p.id !== me?.user?.id);
+      return data ?? [];
     },
     enabled: !!me?.user?.id,
   });
+
 
   const create = useMutation({
     mutationFn: async (payload: { title: string; description: string; tags: string[] }) => {
