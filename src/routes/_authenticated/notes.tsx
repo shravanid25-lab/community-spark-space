@@ -24,9 +24,9 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
     meta: [
-      { title: "Note Sharing — Campus Connect" },
+      { title: "Note Sharing — Campus Hub" },
       { name: "description", content: "Upload, browse and download peer-shared lecture notes and study guides." },
-      { property: "og:title", content: "Note Sharing — Campus Connect" },
+      { property: "og:title", content: "Note Sharing — Campus Hub" },
       { property: "og:description", content: "Crowdsourced study material for every course." },
     ],
   }),

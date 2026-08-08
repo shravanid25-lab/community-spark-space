@@ -23,9 +23,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/projects")({
   head: () => ({
     meta: [
-      { title: "Project Hub — Campus Connect" },
+      { title: "Project Hub — Campus Hub" },
       { name: "description", content: "Post projects, find teammates, and collaborate on coursework and hackathons." },
-      { property: "og:title", content: "Project Hub — Campus Connect" },
+      { property: "og:title", content: "Project Hub — Campus Hub" },
       { property: "og:description", content: "Team up on projects across campus." },
     ],
   }),

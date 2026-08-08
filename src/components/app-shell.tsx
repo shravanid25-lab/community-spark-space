@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <div className="min-w-0">
           <div className="font-bold text-lg leading-none">Campus</div>
-          <div className="text-xs text-muted-foreground">Connect</div>
+          <div className="text-xs text-muted-foreground">Hub</div>
         </div>
       </Link>
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
@@ -203,7 +203,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0 bg-card">
-              <SheetTitle className="sr-only">Campus Connect navigation</SheetTitle>
+              <SheetTitle className="sr-only">Campus Hub navigation</SheetTitle>
               {sidebar}
             </SheetContent>
           </Sheet>
@@ -211,7 +211,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="size-8 shrink-0 rounded-lg bg-brand-600 text-white grid place-items-center">
               <GraduationCap className="size-4" />
             </div>
-            <span className="font-bold truncate">Campus Connect</span>
+            <span className="font-bold truncate">Campus Hub</span>
           </div>
         </header>
         <main className="flex-1 min-w-0">{children}</main>

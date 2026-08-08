@@ -30,13 +30,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/marketplace")({
   head: () => ({
     meta: [
-      { title: "Marketplace & Rentals — Campus Connect" },
+      { title: "Marketplace & Rentals — Campus Hub" },
       {
         name: "description",
         content:
           "Buy, sell, and rent textbooks, dorm gear, and gadgets with fellow students on campus.",
       },
-      { property: "og:title", content: "Marketplace & Rentals — Campus Connect" },
+      { property: "og:title", content: "Marketplace & Rentals — Campus Hub" },
       { property: "og:description", content: "Student-to-student marketplace and borrowing hub." },
     ],
   }),

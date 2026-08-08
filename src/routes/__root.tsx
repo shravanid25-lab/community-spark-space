@@ -84,21 +84,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Campus" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { title: "Campus Connect — University Portal" },
+      { title: "Campus Hub — University Portal" },
       {
         name: "description",
         content:
-          "Campus Connect is a centralized university portal for notes, projects, marketplace, clubs, polls, and more.",
+          "Campus Hub is a centralized university portal for notes, projects, marketplace, clubs, polls, and more.",
       },
-      { property: "og:title", content: "Campus Connect — University Portal" },
+      { property: "og:title", content: "Campus Hub — University Portal" },
       {
         property: "og:description",
-        content: "Campus Connect is a centralized university portal for notes, projects, marketplace, clubs, polls, and more.",
+        content: "Campus Hub is a centralized university portal for notes, projects, marketplace, clubs, polls, and more.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Campus Connect — University Portal" },
-      { name: "twitter:description", content: "Campus Connect is a centralized university portal for notes, projects, marketplace, clubs, polls, and more." },
+      { name: "twitter:title", content: "Campus Hub — University Portal" },
+      { name: "twitter:description", content: "Campus Hub is a centralized university portal for notes, projects, marketplace, clubs, polls, and more." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2a5c787f-2bda-4d4d-b834-78d475e8f21a/id-preview-79a30c85--13b8b67b-89b4-41ac-b24b-bad2a7101595.lovable.app-1784877419115.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2a5c787f-2bda-4d4d-b834-78d475e8f21a/id-preview-79a30c85--13b8b67b-89b4-41ac-b24b-bad2a7101595.lovable.app-1784877419115.png" },
     ],
@@ -148,7 +148,7 @@ function RootComponent() {
         if (domain !== "pcu.edu.in") {
           await supabase.auth.signOut();
           if (typeof window !== "undefined") {
-            window.alert("Only @pcu.edu.in accounts are allowed on Campus Connect.");
+            window.alert("Only @pcu.edu.in accounts are allowed on Campus Hub.");
             window.location.assign("/auth");
           }
           return;

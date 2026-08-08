@@ -30,9 +30,9 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/_authenticated/clubs")({
   head: () => ({
     meta: [
-      { title: "Clubs & Events — Campus Connect" },
+      { title: "Clubs & Events — Campus Hub" },
       { name: "description", content: "Discover student clubs and upcoming campus events." },
-      { property: "og:title", content: "Clubs & Events — Campus Connect" },
+      { property: "og:title", content: "Clubs & Events — Campus Hub" },
       { property: "og:description", content: "Get involved in campus life." },
     ],
   }),

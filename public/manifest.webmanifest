@@ -1,7 +1,7 @@
 {
-  "name": "Campus Connect",
+  "name": "Campus Hub",
   "short_name": "Campus",
-  "description": "PCU Campus Connect — notes, projects, marketplace, clubs, polls.",
+  "description": "PCU Campus Hub — notes, projects, marketplace, clubs, polls.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

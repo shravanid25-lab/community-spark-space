@@ -22,9 +22,9 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/_authenticated/polls")({
   head: () => ({
     meta: [
-      { title: "Campus Voice — Campus Connect" },
+      { title: "Campus Voice — Campus Hub" },
       { name: "description", content: "Vote in student polls and shape decisions that matter on campus." },
-      { property: "og:title", content: "Campus Voice — Campus Connect" },
+      { property: "og:title", content: "Campus Voice — Campus Hub" },
       { property: "og:description", content: "Student polls and voting for the campus community." },
     ],
   }),
