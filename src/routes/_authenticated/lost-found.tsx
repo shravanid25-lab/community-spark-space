@@ -31,9 +31,9 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/_authenticated/lost-found")({
   head: () => ({
     meta: [
-      { title: "Lost & Found — Campus Connect" },
+      { title: "Lost & Found — Campus Hub" },
       { name: "description", content: "Report items you've lost or found around campus and reunite them with their owners." },
-      { property: "og:title", content: "Lost & Found — Campus Connect" },
+      { property: "og:title", content: "Lost & Found — Campus Hub" },
       { property: "og:description", content: "Report and reclaim items on campus." },
     ],
   }),

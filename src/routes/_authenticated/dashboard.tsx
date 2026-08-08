@@ -17,9 +17,9 @@ import { format } from "date-fns";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Overview — Campus Connect" },
+      { title: "Overview — Campus Hub" },
       { name: "description", content: "Your campus overview: activity, events and quick access to every module." },
-      { property: "og:title", content: "Overview — Campus Connect" },
+      { property: "og:title", content: "Overview — Campus Hub" },
       { property: "og:description", content: "Your personal campus dashboard." },
     ],
   }),
@@ -102,7 +102,7 @@ function Dashboard() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <PageHeader
         title={`Welcome back, ${name}`}
-        description={me?.profile?.department ? `${me.profile.department} • Campus Connect` : "Campus Connect"}
+        description={me?.profile?.department ? `${me.profile.department} • Campus Hub` : "Campus Hub"}
       />
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
