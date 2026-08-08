@@ -14,9 +14,9 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in — Campus Connect" },
-      { name: "description", content: "Sign in or create your Campus Connect student account." },
-      { property: "og:title", content: "Sign in — Campus Connect" },
+      { title: "Sign in — Campus Hub" },
+      { name: "description", content: "Sign in or create your Campus Hub student account." },
+      { property: "og:title", content: "Sign in — Campus Hub" },
       { property: "og:description", content: "Access notes, projects, marketplace, and more." },
     ],
   }),
@@ -100,7 +100,7 @@ function AuthPage() {
       }
     }
     setLoading(false);
-    toast.success("Account created — welcome to Campus Connect!");
+    toast.success("Account created — welcome to Campus Hub!");
     navigate({ to: "/dashboard", replace: true });
   }
 
@@ -127,7 +127,7 @@ function AuthPage() {
             <div className="size-10 rounded-xl bg-brand-600 grid place-items-center">
               <GraduationCap className="size-6" />
             </div>
-            <span className="text-xl font-bold">Campus Connect</span>
+            <span className="text-xl font-bold">Campus Hub</span>
           </div>
         </div>
         <div className="relative space-y-4">
@@ -139,7 +139,7 @@ function AuthPage() {
             polls — all in one clean workspace built for students.
           </p>
         </div>
-        <div className="relative text-xs text-brand-100/70">© {new Date().getFullYear()} Campus Connect University</div>
+        <div className="relative text-xs text-brand-100/70">© {new Date().getFullYear()} Campus Hub University</div>
       </div>
 
       <div className="flex items-center justify-center p-6">
