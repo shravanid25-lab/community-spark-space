@@ -329,28 +329,37 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           department: string | null
           full_name: string | null
           id: string
+          interests: string[]
+          skills: string[]
           student_id: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           department?: string | null
           full_name?: string | null
           id: string
+          interests?: string[]
+          skills?: string[]
           student_id?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           department?: string | null
           full_name?: string | null
           id?: string
+          interests?: string[]
+          skills?: string[]
           student_id?: string | null
           updated_at?: string
         }
@@ -495,17 +504,24 @@ export type Database = {
       profiles_basic: {
         Args: { _ids: string[] }
         Returns: {
+          avatar_url: string
           department: string
           full_name: string
           id: string
+          interests: string[]
+          skills: string[]
         }[]
       }
       search_students: {
         Args: { _limit?: number; _q?: string }
         Returns: {
+          avatar_url: string
+          bio: string
           department: string
           full_name: string
           id: string
+          interests: string[]
+          skills: string[]
         }[]
       }
     }

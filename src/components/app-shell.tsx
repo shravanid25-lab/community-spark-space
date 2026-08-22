@@ -12,6 +12,8 @@ import {
   GraduationCap,
   Menu,
   Trash2,
+  UserRound,
+
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,8 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { deleteMyAccount } from "@/lib/account.functions";
+import { useAvatarUrl } from "@/lib/avatar";
+
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -40,7 +44,9 @@ const nav = [
   { to: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { to: "/clubs", label: "Clubs & Events", icon: Users },
   { to: "/polls", label: "Campus Voice", icon: Vote },
+  { to: "/profile", label: "My Profile", icon: UserRound },
 ] as const;
+
 
 export function useProfile() {
   return useQuery({
@@ -67,6 +73,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const deleteAccount = useServerFn(deleteMyAccount);
+  const avatarUrl = useAvatarUrl(data?.profile?.avatar_url);
+
 
   async function signOut() {
     await qc.cancelQueries();
@@ -140,15 +148,25 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>
       <div className="p-3 border-t border-border space-y-1">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-2 py-2">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="size-9 shrink-0 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs font-semibold">
-              {initials || "U"}
+          <Link
+            to="/profile"
+            onClick={() => setMobileOpen(false)}
+            className="flex min-w-0 items-center gap-3"
+          >
+            <div className="size-9 shrink-0 rounded-full overflow-hidden bg-brand-100 text-brand-700 grid place-items-center text-xs font-semibold">
+              {avatarUrl.data ? (
+                <img src={avatarUrl.data} alt="" className="size-full object-cover" />
+              ) : (
+                initials || "U"
+              )}
             </div>
+
             <div className="min-w-0">
               <div className="text-sm font-semibold truncate">{displayName}</div>
               <div className="text-xs text-muted-foreground truncate">{subtitle}</div>
             </div>
-          </div>
+          </Link>
+
           <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" title="Sign out">
             <LogOut className="size-4" />
           </Button>
