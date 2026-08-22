@@ -71,6 +71,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const deleteAccount = useServerFn(deleteMyAccount);
+  const avatarUrl = useAvatarUrl(data?.profile?.avatar_url);
+
 
   async function signOut() {
     await qc.cancelQueries();
