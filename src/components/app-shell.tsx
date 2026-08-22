@@ -40,7 +40,9 @@ const nav = [
   { to: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { to: "/clubs", label: "Clubs & Events", icon: Users },
   { to: "/polls", label: "Campus Voice", icon: Vote },
+  { to: "/profile", label: "My Profile", icon: UserRound },
 ] as const;
+
 
 export function useProfile() {
   return useQuery({
