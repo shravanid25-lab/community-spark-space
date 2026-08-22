@@ -35,18 +35,8 @@ type FullProfile = {
   interests: string[] | null;
 };
 
-export function useAvatarUrl(path: string | null | undefined) {
-  return useQuery({
-    queryKey: ["avatar-url", path],
-    queryFn: async () => {
-      if (!path) return null;
-      const { data } = await supabase.storage.from("campus-uploads").createSignedUrl(path, 3600);
-      return data?.signedUrl ?? null;
-    },
-    enabled: !!path,
-    staleTime: 30 * 60 * 1000,
-  });
-}
+
+
 
 function ProfilePage() {
   const qc = useQueryClient();
