@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAvatarUrl } from "@/lib/avatar";
+
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
