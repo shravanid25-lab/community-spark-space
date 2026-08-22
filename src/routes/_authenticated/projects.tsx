@@ -75,11 +75,34 @@ function ProjectsPage() {
       if (!uid) return [];
       const { data } = await supabase
         .from("project_members")
-        .select("project_id, status")
+        .select("id, project_id, status")
         .eq("user_id", uid);
       return data ?? [];
     },
     enabled: !!me?.user?.id,
+  });
+
+  const myProjects = useMemo(
+    () => (projects.data ?? []).filter((p) => p.owner_id === me?.user?.id),
+    [projects.data, me?.user?.id],
+  );
+
+  // Rows for projects I own, so I can tell who I already invited.
+  const ownedMemberRows = useQuery({
+    queryKey: ["owned-member-rows", myProjects.map((p) => p.id).join(",")],
+    queryFn: async () => {
+      if (myProjects.length === 0) return [];
+      const { data, error } = await supabase
+        .from("project_members")
+        .select("project_id, user_id, status")
+        .in(
+          "project_id",
+          myProjects.map((p) => p.id),
+        );
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: myProjects.length > 0,
   });
 
   const teammates = useQuery({
@@ -94,6 +117,33 @@ function ProjectsPage() {
     },
     enabled: !!me?.user?.id,
   });
+
+  const invite = useMutation({
+    mutationFn: async ({ project_id, user_id }: { project_id: string; user_id: string }) => {
+      const { error } = await supabase
+        .from("project_members")
+        .insert({ project_id, user_id, status: "invited" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Invitation sent");
+      qc.invalidateQueries({ queryKey: ["owned-member-rows"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const respondInvite = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "accepted" | "rejected" }) => {
+      const { error } = await supabase.from("project_members").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      toast.success(v.status === "accepted" ? "You joined the team" : "Invitation declined");
+      qc.invalidateQueries({ queryKey: ["project-members-mine"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
 
   const create = useMutation({
