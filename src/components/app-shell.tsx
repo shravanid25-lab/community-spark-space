@@ -33,6 +33,8 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { deleteMyAccount } from "@/lib/account.functions";
+import { useAvatarUrl } from "@/lib/avatar";
+
 
 const nav = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
