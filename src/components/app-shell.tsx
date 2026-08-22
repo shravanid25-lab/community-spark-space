@@ -161,7 +161,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-sm font-semibold truncate">{displayName}</div>
               <div className="text-xs text-muted-foreground truncate">{subtitle}</div>
             </div>
-          </div>
+          </Link>
+
           <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" title="Sign out">
             <LogOut className="size-4" />
           </Button>
