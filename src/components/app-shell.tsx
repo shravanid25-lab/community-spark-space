@@ -65,6 +65,29 @@ export function useProfile() {
   });
 }
 
+/** True when the signed-in account is a moderator/admin (can remove any post). */
+export function useIsAdmin() {
+  const { data: me } = useProfile();
+  const uid = me?.user?.id;
+  const q = useQuery({
+    queryKey: ["is-admin", uid],
+    queryFn: async () => {
+      if (!uid) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!uid,
+    staleTime: 5 * 60 * 1000,
+  });
+  return q.data === true;
+}
+
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
