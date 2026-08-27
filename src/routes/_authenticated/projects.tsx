@@ -345,43 +345,79 @@ function ProjectsPage() {
         ) : null}
       </div>
 
+      {/* Invitations for you */}
+      {(() => {
+        const invites = (members.data ?? []).filter((m) => m.status === "invited");
+        if (invites.length === 0) return null;
+        return (
+          <div className="mt-10">
+            <h2 className="text-xl font-bold text-slate-900 mb-1">Invitations for you</h2>
+            <p className="text-sm text-slate-500 mb-4">Team leaders who want you on their project.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {invites.map((m) => {
+                const proj = (projects.data ?? []).find((p) => p.id === m.project_id);
+                return (
+                  <div
+                    key={m.id}
+                    className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-3 flex-wrap"
+                  >
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold truncate">{proj?.title ?? "Project"}</div>
+                      <div className="text-xs text-slate-500 truncate">{proj?.description ?? ""}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-brand-600 hover:bg-brand-700"
+                        onClick={() => respondInvite.mutate({ id: m.id, status: "accepted" })}
+                      >
+                        <Check className="size-4 mr-1.5" /> Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => respondInvite.mutate({ id: m.id, status: "rejected" })}
+                      >
+                        <X className="size-4 mr-1.5" /> Decline
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Find teammates */}
       <div className="mt-10">
         <h2 className="text-xl font-bold text-slate-900 mb-1">Find teammates</h2>
         <p className="text-sm text-slate-500 mb-4">
-          Search other students to see who might be interested in joining your project.
+          Search students by name, branch, skills or interests, then invite them to one of your projects.
         </p>
         <div className="relative mb-4">
           <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <Input
             value={memberQuery}
             onChange={(e) => setMemberQuery(e.target.value)}
-            placeholder="Search by name or department (e.g. CSE, Design)…"
+            placeholder="Search by name, branch, skill or interest (e.g. React, CSE, robotics)…"
             className="pl-9"
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {(teammates.data ?? []).map((t) => {
-            const initials = (t.full_name ?? "?")
-              .split(" ")
-              .map((s) => s[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
-            return (
-              <div key={t.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-3">
-                <div className="size-10 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs font-semibold">
-                  {initials || "U"}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-semibold truncate">{t.full_name || "Unnamed student"}</div>
-                  <div className="text-xs text-slate-500 truncate">
-                    {t.department || "—"}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {(teammates.data ?? []).map((t) => (
+            <TeammateCard
+              key={t.id}
+              student={t}
+              myProjects={myProjects}
+              invitedProjectIds={(ownedMemberRows.data ?? [])
+                .filter((r) => r.user_id === t.id)
+                .map((r) => r.project_id)}
+              isMe={t.id === me?.user?.id}
+              onInvite={(project_id) => invite.mutate({ project_id, user_id: t.id })}
+              inviting={invite.isPending}
+            />
+          ))}
           {teammates.isFetched && (teammates.data ?? []).length === 0 ? (
             <div className="sm:col-span-2 lg:col-span-3 text-center py-8 text-slate-500 bg-card rounded-xl border border-border">
               No students found.
@@ -389,6 +425,7 @@ function ProjectsPage() {
           ) : null}
         </div>
       </div>
+
 
       {activeProject ? (
         <ProjectDetailDialog
