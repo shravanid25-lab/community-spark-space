@@ -141,39 +141,8 @@ function Dashboard() {
         })}
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-brand-900 text-white p-6 rounded-2xl">
-          <div className="flex items-center gap-2 mb-4">
-            <Vote className="size-5" />
-            <h3 className="text-xl font-bold">Campus Voice</h3>
-          </div>
-          {latestPoll.data ? (
-            <>
-              <p className="text-brand-100 mb-6">{latestPoll.data.poll.question}</p>
-              <div className="space-y-3">
-                {latestPoll.data.options.map((o) => (
-                  <div
-                    key={o.id}
-                    className="relative h-10 w-full bg-brand-800 rounded-lg overflow-hidden flex items-center px-4 border border-brand-700"
-                  >
-                    <div
-                      className="absolute left-0 top-0 h-full bg-brand-500 opacity-40"
-                      style={{ width: `${o.pct}%` }}
-                    />
-                    <span className="relative z-10 font-medium">
-                      {o.label} ({o.pct}%)
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <Link to="/polls" className="inline-block mt-6 text-sm font-semibold text-brand-100 hover:text-white">
-                View all polls →
-              </Link>
-            </>
-          ) : (
-            <p className="text-brand-100">No polls yet — be the first to start one.</p>
-          )}
-        </div>
+      <section className="grid grid-cols-1 gap-8">
+
 
         <div className="bg-card p-6 rounded-2xl border border-border">
           <div className="flex items-center gap-2 mb-4">
