@@ -438,6 +438,118 @@ function ProjectsPage() {
   );
 }
 
+/* -------------------- Teammate card -------------------- */
+
+type Student = {
+  id: string;
+  full_name: string | null;
+  department: string | null;
+  avatar_url: string | null;
+  skills: string[] | null;
+  interests: string[] | null;
+  bio?: string | null;
+};
+
+function TeammateCard({
+  student,
+  myProjects,
+  invitedProjectIds,
+  isMe,
+  onInvite,
+  inviting,
+}: {
+  student: Student;
+  myProjects: Project[];
+  invitedProjectIds: string[];
+  isMe: boolean;
+  onInvite: (projectId: string) => void;
+  inviting: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const { data: photo } = useAvatarUrl(student.avatar_url);
+  const initials = (student.full_name ?? "?")
+    .split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const available = myProjects.filter((p) => !invitedProjectIds.includes(p.id));
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        {photo ? (
+          <img src={photo} alt={student.full_name ?? "Student"} className="size-10 rounded-full object-cover" />
+        ) : (
+          <div className="size-10 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs font-semibold">
+            {initials || "U"}
+          </div>
+        )}
+        <div className="min-w-0">
+          <div className="text-sm font-semibold truncate">{student.full_name || "Unnamed student"}</div>
+          <div className="text-xs text-slate-500 truncate">{student.department || "—"}</div>
+        </div>
+      </div>
+
+      {(student.skills ?? []).length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {(student.skills ?? []).slice(0, 6).map((s) => (
+            <span key={s} className="text-xs px-2 py-0.5 bg-brand-50 text-brand-700 rounded">
+              {s}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {(student.interests ?? []).length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {(student.interests ?? []).slice(0, 6).map((s) => (
+            <span key={s} className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+              {s}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {!isMe ? (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline" className="mt-auto w-full" disabled={myProjects.length === 0}>
+              <Send className="size-4 mr-1.5" />
+              {myProjects.length === 0 ? "Post a project to invite" : "Invite to project"}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invite {student.full_name || "student"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              {available.length === 0 ? (
+                <p className="text-sm text-slate-500">Already invited to all of your projects.</p>
+              ) : (
+                available.map((p) => (
+                  <Button
+                    key={p.id}
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={inviting}
+                    onClick={() => {
+                      onInvite(p.id);
+                      setOpen(false);
+                    }}
+                  >
+                    {p.title}
+                  </Button>
+                ))
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+    </div>
+  );
+}
+
+
 /* -------------------- Project detail (members + chat) -------------------- */
 
 type Member = {
