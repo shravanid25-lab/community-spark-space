@@ -3,7 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { useAvatarUrl } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,7 @@ function ProjectsPage() {
   const [memberQuery, setMemberQuery] = useState("");
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const { data: me } = useProfile();
+  const isAdmin = useIsAdmin();
 
   const projects = useQuery({
     queryKey: ["projects"],
@@ -67,6 +69,30 @@ function ProjectsPage() {
       if (error) throw error;
       return (data ?? []) as Project[];
     },
+  });
+
+  const ownerNames = useQuery({
+    queryKey: ["project-owner-names", (projects.data ?? []).map((p) => p.owner_id).join(",")],
+    queryFn: async () => {
+      const ids = Array.from(new Set((projects.data ?? []).map((p) => p.owner_id)));
+      if (ids.length === 0) return new Map<string, string>();
+      const { data } = await supabase.rpc("profiles_basic", { _ids: ids });
+      return new Map((data ?? []).map((r) => [r.id, r.full_name ?? "Student"]));
+    },
+    enabled: (projects.data ?? []).length > 0,
+  });
+
+  const closeProject = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("projects").update({ status: "closed" }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Requirement closed — the team is now on your profile");
+      qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["my-teams"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const members = useQuery({
@@ -197,12 +223,18 @@ function ProjectsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return projects.data ?? [];
+    const uid = me?.user?.id;
+    const myIds = new Set(
+      (members.data ?? []).filter((m) => m.status === "accepted").map((m) => m.project_id),
+    );
     return (projects.data ?? []).filter((p) => {
+      // Fulfilled requirements leave the common board; participants still see them.
+      if (p.status !== "open" && p.owner_id !== uid && !myIds.has(p.id)) return false;
+      if (!q) return true;
       const hay = `${p.title} ${p.description ?? ""} ${(p.tags ?? []).join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [projects.data, query]);
+  }, [projects.data, query, members.data, me?.user?.id]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -213,6 +245,7 @@ function ProjectsPage() {
       tags: form.get("tags") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.tags)) return;
     const tags = (parsed.data.tags ?? "")
       .split(",")
       .map((s) => s.trim())
@@ -307,13 +340,26 @@ function ProjectsPage() {
               ) : null}
               <div className="flex items-center justify-between pt-4 border-t border-slate-100 gap-2 flex-wrap">
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <Users className="size-3.5" /> Open to collaborators
+                  <Users className="size-3.5" /> Team leader:{" "}
+                  <span className="font-medium text-slate-700">
+                    {ownerNames.data?.get(p.owner_id) ?? (isOwner ? "You" : "Student")}
+                  </span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   <Button size="sm" variant="outline" onClick={() => setActiveProject(p)}>
                     <MessageSquare className="size-4 mr-1.5" /> Open
                   </Button>
-                  {isOwner ? (
+                  {isOwner && p.status === "open" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => closeProject.mutate(p.id)}
+                      disabled={closeProject.isPending}
+                    >
+                      <Check className="size-4 mr-1.5" /> Close requirement
+                    </Button>
+                  ) : null}
+                  {isOwner || isAdmin ? (
                     <Button size="sm" variant="ghost" onClick={() => remove.mutate(p.id)}>
                       <Trash2 className="size-4 text-destructive" />
                     </Button>
@@ -784,6 +830,9 @@ function ProjectChat({
 
   return (
     <div className="flex flex-col h-[420px] border border-border rounded-lg overflow-hidden">
+      <div className="px-3 py-2 text-xs bg-amber-50 text-amber-800 border-b border-amber-200">
+        Please don't share personal information (phone numbers, addresses, ID or bank details) in this chat.
+      </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50">
         {(messagesQ.data ?? []).length === 0 ? (
           <div className="text-center text-sm text-slate-400 py-8">
@@ -814,7 +863,9 @@ function ProjectChat({
         className="flex gap-2 p-2 border-t border-border bg-white"
         onSubmit={(e) => {
           e.preventDefault();
-          if (text.trim()) send.mutate(text);
+          if (!text.trim()) return;
+          if (blockProfanity(text)) return;
+          send.mutate(text);
         }}
       >
         <Input

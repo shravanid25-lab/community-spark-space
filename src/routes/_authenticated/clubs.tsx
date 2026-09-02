@@ -3,7 +3,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +56,7 @@ const eventSchema = z.object({
 function ClubsPage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
+  const isAdmin = useIsAdmin();
   const [clubOpen, setClubOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
 
@@ -154,6 +156,7 @@ function ClubsPage() {
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.name, parsed.data.description)) return;
     createClub.mutate({ name: parsed.data.name, description: parsed.data.description ?? "" });
   }
 
@@ -168,6 +171,7 @@ function ClubsPage() {
       club_id: form.get("club_id") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.location)) return;
     createEvent.mutate({
       title: parsed.data.title,
       description: parsed.data.description ?? "",
@@ -277,7 +281,7 @@ function ClubsPage() {
             <div key={c.id} className="bg-card p-5 rounded-2xl border border-border shadow-sm">
               <div className="flex items-start justify-between">
                 <h3 className="font-bold text-slate-900">{c.name}</h3>
-                {me?.user?.id === c.created_by ? (
+                {me?.user?.id === c.created_by || isAdmin ? (
                   <Button size="icon" variant="ghost" onClick={() => removeClub.mutate(c.id)}>
                     <Trash2 className="size-4 text-destructive" />
                   </Button>
@@ -319,7 +323,7 @@ function ClubsPage() {
                   </div>
                   {e.description ? <p className="text-sm text-slate-600 mt-2">{e.description}</p> : null}
                 </div>
-                {me?.user?.id === e.created_by ? (
+                {me?.user?.id === e.created_by || isAdmin ? (
                   <Button size="icon" variant="ghost" onClick={() => removeEvent.mutate(e.id)}>
                     <Trash2 className="size-4 text-destructive" />
                   </Button>

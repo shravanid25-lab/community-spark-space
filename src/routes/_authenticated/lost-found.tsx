@@ -3,7 +3,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ const itemSchema = z.object({
 function LostFoundPage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
+  const isAdmin = useIsAdmin();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "lost" | "found">("all");
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -141,6 +143,7 @@ function LostFoundPage() {
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.location)) return;
     create.mutate({
       kind: parsed.data.kind,
       title: parsed.data.title,
@@ -251,7 +254,7 @@ function LostFoundPage() {
               {i.description ? <p className="text-sm text-slate-600 mt-2 line-clamp-2">{i.description}</p> : null}
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
                 <span className="text-xs text-slate-400">{format(new Date(i.created_at), "MMM d")}</span>
-                {me?.user?.id === i.reporter_id ? (
+                {me?.user?.id === i.reporter_id || isAdmin ? (
                   <div className="flex gap-1">
                     {!i.resolved ? (
                       <Button size="sm" variant="ghost" onClick={() => resolve.mutate(i.id)}>

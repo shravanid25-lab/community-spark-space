@@ -3,7 +3,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,6 +63,7 @@ function MarketplacePage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
   const uid = me?.user?.id;
+  const isAdmin = useIsAdmin();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<ListingType>("sale");
   const [formType, setFormType] = useState<ListingType>("sale");
@@ -232,6 +234,7 @@ function MarketplacePage() {
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.description)) return;
     create.mutate({
       title: parsed.data.title,
       price: parsed.data.price,
@@ -245,6 +248,7 @@ function MarketplacePage() {
   function onBorrowSubmit(e: React.FormEvent<HTMLFormElement>, itemId: string) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    if (blockProfanity(String(form.get("message") ?? ""))) return;
     requestBorrow.mutate({
       item_id: itemId,
       message: String(form.get("message") ?? "").slice(0, 500),
@@ -349,6 +353,7 @@ function MarketplacePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {visible.map((i) => {
           const mine = uid === i.seller_id;
+          const canModerate = mine || isAdmin;
           const isRent = (i.listing_type ?? "sale") === "rent";
           const itemRequests = requestsForItem(i.id);
           const myRequest = itemRequests.find((r) => r.requester_id === uid);
@@ -460,7 +465,7 @@ function MarketplacePage() {
                   </div>
                 ) : null}
 
-                {mine ? (
+                {canModerate ? (
                   <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
                     {isRent && itemRequests.length ? (
                       <div className="space-y-2">

@@ -3,7 +3,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,7 @@ type PollWithData = {
 function PollsPage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
+  const isAdmin = useIsAdmin();
   const [open, setOpen] = useState(false);
   const [optCount, setOptCount] = useState(2);
 
@@ -141,6 +143,7 @@ function PollsPage() {
     }
     const parsed = pollSchema.safeParse({ question: form.get("question"), options });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.question, parsed.data.options)) return;
     create.mutate({ question: parsed.data.question, options: parsed.data.options });
   }
 
@@ -197,7 +200,7 @@ function PollsPage() {
                   {p.total} vote{p.total === 1 ? "" : "s"} • {format(new Date(p.created_at), "MMM d")}
                 </div>
               </div>
-              {me?.user?.id === p.created_by ? (
+              {me?.user?.id === p.created_by || isAdmin ? (
                 <Button size="icon" variant="ghost" onClick={() => remove.mutate(p.id)}>
                   <Trash2 className="size-4 text-destructive" />
                 </Button>
