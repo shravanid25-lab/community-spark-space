@@ -465,7 +465,7 @@ function MarketplacePage() {
                   </div>
                 ) : null}
 
-                {mine ? (
+                {canModerate ? (
                   <div className="mt-3 pt-3 border-t border-slate-100 space-y-2">
                     {isRent && itemRequests.length ? (
                       <div className="space-y-2">
