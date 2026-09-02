@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAvatarUrl } from "@/lib/avatar";
+import { blockProfanity } from "@/lib/profanity";
 
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -77,6 +78,33 @@ function ProfilePage() {
   }, [profileQ.data]);
 
   const avatar = useAvatarUrl(profileQ.data?.avatar_url);
+
+  // Teams I lead or belong to, including requirements I've already closed.
+  const teamsQ = useQuery({
+    queryKey: ["my-teams", uid],
+    queryFn: async () => {
+      if (!uid) return [];
+      const [ownedRes, memberRes] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("id, title, description, status, owner_id")
+          .eq("owner_id", uid),
+        supabase.from("project_members").select("project_id").eq("user_id", uid).eq("status", "accepted"),
+      ]);
+      const owned = ownedRes.data ?? [];
+      const joinedIds = (memberRes.data ?? []).map((m) => m.project_id);
+      let joined: typeof owned = [];
+      if (joinedIds.length) {
+        const { data } = await supabase
+          .from("projects")
+          .select("id, title, description, status, owner_id")
+          .in("id", joinedIds);
+        joined = data ?? [];
+      }
+      return [...owned.map((p) => ({ ...p, role: "Leader" })), ...joined.map((p) => ({ ...p, role: "Member" }))];
+    },
+    enabled: !!uid,
+  });
 
   const save = useMutation({
     mutationFn: async () => {
@@ -199,6 +227,7 @@ function ProfilePage() {
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
+            if (blockProfanity(fullName, department, bio, skills, interests)) return;
             save.mutate();
           }}
         >
@@ -267,6 +296,41 @@ function ProfilePage() {
             {save.isPending ? "Saving…" : "Save profile"}
           </Button>
         </form>
+      </div>
+
+      <div className="mt-8 bg-card rounded-2xl border border-border p-4 sm:p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-slate-900">My teams</h2>
+        <p className="text-sm text-slate-500 mb-4">
+          Projects you lead or joined — including requirements you've already closed.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {(teamsQ.data ?? []).map((t) => (
+            <div key={`${t.role}-${t.id}`} className="border border-border rounded-xl p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div className="font-semibold text-slate-900 truncate">{t.title}</div>
+                <span className="shrink-0 text-[10px] uppercase font-bold px-2 py-1 rounded bg-slate-100 text-slate-600">
+                  {t.role}
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 line-clamp-2 mt-1">{t.description}</p>
+              <span
+                className={
+                  "inline-block mt-3 text-[10px] uppercase font-bold px-2 py-1 rounded " +
+                  (t.status === "open"
+                    ? "text-amber-700 bg-amber-50"
+                    : "text-emerald-700 bg-emerald-50")
+                }
+              >
+                {t.status === "open" ? "Members required" : "Team complete"}
+              </span>
+            </div>
+          ))}
+          {teamsQ.isFetched && (teamsQ.data ?? []).length === 0 ? (
+            <div className="sm:col-span-2 text-center py-8 text-slate-500">
+              You're not part of any team yet.
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
