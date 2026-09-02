@@ -3,7 +3,8 @@ import { useState } from "react";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, useProfile } from "@/components/app-shell";
+import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
+import { blockProfanity } from "@/lib/profanity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ function NotesPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data: me } = useProfile();
+  const isAdmin = useIsAdmin();
 
   const notes = useQuery({
     queryKey: ["notes"],
@@ -118,6 +120,7 @@ function NotesPage() {
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.course_code)) return;
     upload.mutate({ ...parsed.data, description: parsed.data.description ?? "", file });
   }
 
@@ -208,7 +211,7 @@ function NotesPage() {
                     <Button size="sm" variant="ghost" onClick={() => download(n.file_path)}>
                       <Download className="size-4 mr-1" /> Download
                     </Button>
-                    {currentUserId === n.uploader_id ? (
+                    {currentUserId === n.uploader_id || isAdmin ? (
                       <Button
                         size="icon"
                         variant="ghost"
