@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string | null
+          club_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          club_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string | null
+          club_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       borrow_requests: {
         Row: {
           created_at: string
@@ -203,32 +238,41 @@ export type Database = {
       }
       notes: {
         Row: {
+          category: string
           course_code: string
           created_at: string
           description: string | null
           file_path: string
           file_type: string | null
           id: string
+          semester: string | null
+          subject: string | null
           title: string
           uploader_id: string
         }
         Insert: {
+          category?: string
           course_code: string
           created_at?: string
           description?: string | null
           file_path: string
           file_type?: string | null
           id?: string
+          semester?: string | null
+          subject?: string | null
           title: string
           uploader_id: string
         }
         Update: {
+          category?: string
           course_code?: string
           created_at?: string
           description?: string | null
           file_path?: string
           file_type?: string | null
           id?: string
+          semester?: string | null
+          subject?: string | null
           title?: string
           uploader_id?: string
         }
