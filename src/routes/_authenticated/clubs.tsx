@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Calendar, MapPin, Users } from "lucide-react";
+import { Plus, Trash2, Calendar, MapPin, Users, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -53,12 +53,19 @@ const eventSchema = z.object({
   club_id: z.string().uuid().optional().or(z.literal("")),
 });
 
+const announcementSchema = z.object({
+  title: z.string().trim().min(2).max(120),
+  body: z.string().trim().max(800).optional().or(z.literal("")),
+  club_id: z.string().uuid().optional().or(z.literal("")),
+});
+
 function ClubsPage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
   const isAdmin = useIsAdmin();
   const [clubOpen, setClubOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
+  const [annOpen, setAnnOpen] = useState(false);
 
   const clubs = useQuery({
     queryKey: ["clubs"],
