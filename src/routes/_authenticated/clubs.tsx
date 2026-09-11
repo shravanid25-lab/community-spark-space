@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Calendar, MapPin, Users } from "lucide-react";
+import { Plus, Trash2, Calendar, MapPin, Users, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -53,12 +53,19 @@ const eventSchema = z.object({
   club_id: z.string().uuid().optional().or(z.literal("")),
 });
 
+const announcementSchema = z.object({
+  title: z.string().trim().min(2).max(120),
+  body: z.string().trim().max(800).optional().or(z.literal("")),
+  club_id: z.string().uuid().optional().or(z.literal("")),
+});
+
 function ClubsPage() {
   const qc = useQueryClient();
   const { data: me } = useProfile();
   const isAdmin = useIsAdmin();
   const [clubOpen, setClubOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
+  const [annOpen, setAnnOpen] = useState(false);
 
   const clubs = useQuery({
     queryKey: ["clubs"],
@@ -83,6 +90,67 @@ function ClubsPage() {
       return data ?? [];
     },
   });
+
+  const announcements = useQuery({
+    queryKey: ["announcements"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("announcements")
+        .select("id, title, body, club_id, created_by, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const createAnnouncement = useMutation({
+    mutationFn: async (payload: { title: string; body: string; club_id: string }) => {
+      const uid = me?.user?.id;
+      if (!uid) throw new Error("Not signed in");
+      const { error } = await supabase.from("announcements").insert({
+        created_by: uid,
+        title: payload.title,
+        body: payload.body || null,
+        club_id: payload.club_id || null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Announcement posted");
+      qc.invalidateQueries({ queryKey: ["announcements"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-announcements"] });
+      setAnnOpen(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeAnnouncement = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("announcements").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["announcements"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-announcements"] });
+    },
+  });
+
+  async function submitAnnouncement(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const parsed = announcementSchema.safeParse({
+      title: form.get("ann_title"),
+      body: form.get("ann_body") ?? "",
+      club_id: form.get("ann_club_id") ?? "",
+    });
+    if (!parsed.success) return toast.error(parsed.error.issues[0].message);
+    if (blockProfanity(parsed.data.title, parsed.data.body)) return;
+    createAnnouncement.mutate({
+      title: parsed.data.title,
+      body: parsed.data.body ?? "",
+      club_id: parsed.data.club_id ?? "",
+    });
+  }
 
   const createClub = useMutation({
     mutationFn: async (payload: { name: string; description: string }) => {
