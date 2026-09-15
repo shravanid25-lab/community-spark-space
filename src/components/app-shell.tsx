@@ -37,7 +37,6 @@ import { useAvatarUrl } from "@/lib/avatar";
 
 
 const nav = [
-  { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/notes", label: "Note Sharing", icon: FileText },
   { to: "/projects", label: "Project Hub", icon: FolderKanban },
   { to: "/lost-found", label: "Lost & Found", icon: Search },
