@@ -166,18 +166,26 @@ function NotesPage() {
   }
 
   async function openPreview(n: NoteRow) {
-    const { data, error } = await supabase.storage
-      .from("campus-uploads")
-      .createSignedUrl(n.file_path, 600);
-    if (error) return toast.error(error.message);
+    const { data, error } = await supabase.storage.from("campus-uploads").download(n.file_path);
+    if (error || !data) return toast.error(error?.message ?? "Could not open this file");
     const ext = n.file_path.split(".").pop()?.toLowerCase() ?? "";
-    const type = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext)
-      ? "image"
-      : ext === "pdf" || (n.file_type ?? "").includes("pdf")
-        ? "pdf"
-        : "other";
-    setPreview({ title: n.title, url: data.signedUrl, type });
+    const isImage = ["png", "jpg", "jpeg", "webp", "gif", "avif"].includes(ext);
+    const isPdf = ext === "pdf" || (n.file_type ?? "").includes("pdf") || data.type.includes("pdf");
+    const mime = isImage ? (data.type || `image/${ext === "jpg" ? "jpeg" : ext}`) : isPdf ? "application/pdf" : data.type || "application/octet-stream";
+    const url = URL.createObjectURL(new Blob([data], { type: mime }));
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return { title: n.title, url, type: isImage ? "image" : isPdf ? "pdf" : "other" };
+    });
   }
+
+  function closePreview() {
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return null;
+    });
+  }
+
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
