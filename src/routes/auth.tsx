@@ -50,7 +50,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+      if (data.session) navigate({ to: "/notes", replace: true });
     });
   }, [navigate]);
 
@@ -64,7 +64,7 @@ function AuthPage() {
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Welcome back!");
-    navigate({ to: "/dashboard", replace: true });
+    navigate({ to: "/notes", replace: true });
   }
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
@@ -101,7 +101,7 @@ function AuthPage() {
     }
     setLoading(false);
     toast.success("Account created — welcome to Campus Hub!");
-    navigate({ to: "/dashboard", replace: true });
+    navigate({ to: "/notes", replace: true });
   }
 
   async function handleGoogle() {
@@ -115,7 +115,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/dashboard", replace: true });
+    navigate({ to: "/notes", replace: true });
   }
 
   return (

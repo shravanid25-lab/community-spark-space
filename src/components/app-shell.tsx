@@ -134,11 +134,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <Link
-        to="/dashboard"
-        onClick={() => setMobileOpen(false)}
-        className="p-6 flex items-center gap-3"
-      >
+        <Link
+          to="/notes"
+          onClick={() => setMobileOpen(false)}
+          className="p-6 flex items-center gap-3"
+        >
         <div className="size-9 shrink-0 rounded-lg bg-brand-600 text-white grid place-items-center">
           <GraduationCap className="size-5" />
         </div>
