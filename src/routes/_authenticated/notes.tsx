@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, Download, FileText, Trash2, Search } from "lucide-react";
+import { Upload, Download, FileText, Trash2, Search, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -68,7 +68,9 @@ type NoteRow = {
 
 function NotesPage() {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [uploadKind, setUploadKind] = useState<"note" | "assignment" | null>(null);
+  const open = uploadKind !== null;
+  const [preview, setPreview] = useState<{ title: string; url: string; type: string } | null>(null);
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState("all");
   const [semester, setSemester] = useState("all");
