@@ -166,18 +166,26 @@ function NotesPage() {
   }
 
   async function openPreview(n: NoteRow) {
-    const { data, error } = await supabase.storage
-      .from("campus-uploads")
-      .createSignedUrl(n.file_path, 600);
-    if (error) return toast.error(error.message);
+    const { data, error } = await supabase.storage.from("campus-uploads").download(n.file_path);
+    if (error || !data) return toast.error(error?.message ?? "Could not open this file");
     const ext = n.file_path.split(".").pop()?.toLowerCase() ?? "";
-    const type = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext)
-      ? "image"
-      : ext === "pdf" || (n.file_type ?? "").includes("pdf")
-        ? "pdf"
-        : "other";
-    setPreview({ title: n.title, url: data.signedUrl, type });
+    const isImage = ["png", "jpg", "jpeg", "webp", "gif", "avif"].includes(ext);
+    const isPdf = ext === "pdf" || (n.file_type ?? "").includes("pdf") || data.type.includes("pdf");
+    const mime = isImage ? (data.type || `image/${ext === "jpg" ? "jpeg" : ext}`) : isPdf ? "application/pdf" : data.type || "application/octet-stream";
+    const url = URL.createObjectURL(new Blob([data], { type: mime }));
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return { title: n.title, url, type: isImage ? "image" : isPdf ? "pdf" : "other" };
+    });
   }
+
+  function closePreview() {
+    setPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return null;
+    });
+  }
+
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -394,7 +402,7 @@ function NotesPage() {
       <Section label="Notes" rows={filtered.filter((n) => n.category !== "assignment")} />
       <Section label="Assignments" rows={filtered.filter((n) => n.category === "assignment")} />
 
-      <Dialog open={preview !== null} onOpenChange={(v) => !v && setPreview(null)}>
+      <Dialog open={preview !== null} onOpenChange={(v) => !v && closePreview()}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle className="truncate">{preview?.title}</DialogTitle>
@@ -406,11 +414,23 @@ function NotesPage() {
               className="w-full max-h-[70vh] object-contain rounded-lg bg-slate-50"
             />
           ) : preview?.type === "pdf" ? (
-            <iframe
-              src={preview.url}
-              title={preview.title}
-              className="w-full h-[70vh] rounded-lg border border-border"
-            />
+            <div className="space-y-3">
+              <object
+                data={preview.url}
+                type="application/pdf"
+                className="w-full h-[70vh] rounded-lg border border-border"
+                aria-label={preview.title}
+              >
+                <iframe
+                  src={preview.url}
+                  title={preview.title}
+                  className="w-full h-[70vh] rounded-lg border border-border"
+                />
+              </object>
+              <Button variant="outline" onClick={() => window.open(preview.url, "_blank")}>
+                Open in new tab
+              </Button>
+            </div>
           ) : preview ? (
             <div className="text-center py-10 space-y-3">
               <p className="text-slate-600 text-sm">
@@ -423,6 +443,8 @@ function NotesPage() {
           ) : null}
         </DialogContent>
       </Dialog>
+
+
     </div>
   );
 }
