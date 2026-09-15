@@ -386,6 +386,48 @@ function ClubsPage() {
 
       <section>
         <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <Megaphone className="size-5 text-brand-600" /> Announcements
+        </h2>
+        <div className="space-y-3">
+          {announcements.data?.map((a) => (
+            <div key={a.id} className="bg-card p-5 rounded-2xl border border-border shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-slate-900">{a.title}</h4>
+                    {a.club_id ? (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">
+                        {clubs.data?.find((c) => c.id === a.club_id)?.name || "Club"}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">
+                        Campus
+                      </span>
+                    )}
+                  </div>
+                  {a.body ? <p className="text-sm text-slate-600">{a.body}</p> : null}
+                  <p className="text-xs text-slate-400 mt-2">
+                    {format(new Date(a.created_at), "MMM d, h:mm a")}
+                  </p>
+                </div>
+                {me?.user?.id === a.created_by || isAdmin ? (
+                  <Button size="icon" variant="ghost" onClick={() => removeAnnouncement.mutate(a.id)}>
+                    <Trash2 className="size-4 text-destructive" />
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          ))}
+          {!announcements.isLoading && (announcements.data?.length ?? 0) === 0 ? (
+            <div className="text-center py-10 text-slate-500 bg-card rounded-2xl border border-border">
+              No announcements yet.
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
           <Users className="size-5 text-brand-600" /> Clubs
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
