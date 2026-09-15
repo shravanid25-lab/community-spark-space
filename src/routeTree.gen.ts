@@ -18,7 +18,6 @@ import { Route as AuthenticatedPollsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
 import { Route as AuthenticatedMarketplaceRouteImport } from './routes/_authenticated/marketplace'
 import { Route as AuthenticatedLostFoundRouteImport } from './routes/_authenticated/lost-found'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedClubsRouteImport } from './routes/_authenticated/clubs'
 
 const AuthRoute = AuthRouteImport.update({
@@ -66,11 +65,6 @@ const AuthenticatedLostFoundRoute = AuthenticatedLostFoundRouteImport.update({
   path: '/lost-found',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedClubsRoute = AuthenticatedClubsRouteImport.update({
   id: '/clubs',
   path: '/clubs',
@@ -81,7 +75,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/clubs': typeof AuthenticatedClubsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/lost-found': typeof AuthenticatedLostFoundRoute
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/notes': typeof AuthenticatedNotesRoute
@@ -93,7 +86,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/clubs': typeof AuthenticatedClubsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/lost-found': typeof AuthenticatedLostFoundRoute
   '/marketplace': typeof AuthenticatedMarketplaceRoute
   '/notes': typeof AuthenticatedNotesRoute
@@ -107,7 +99,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/clubs': typeof AuthenticatedClubsRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/lost-found': typeof AuthenticatedLostFoundRoute
   '/_authenticated/marketplace': typeof AuthenticatedMarketplaceRoute
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
@@ -121,7 +112,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/clubs'
-    | '/dashboard'
     | '/lost-found'
     | '/marketplace'
     | '/notes'
@@ -133,7 +123,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/clubs'
-    | '/dashboard'
     | '/lost-found'
     | '/marketplace'
     | '/notes'
@@ -146,7 +135,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/clubs'
-    | '/_authenticated/dashboard'
     | '/_authenticated/lost-found'
     | '/_authenticated/marketplace'
     | '/_authenticated/notes'
@@ -226,13 +214,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLostFoundRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/clubs': {
       id: '/_authenticated/clubs'
       path: '/clubs'
@@ -245,7 +226,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedClubsRoute: typeof AuthenticatedClubsRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLostFoundRoute: typeof AuthenticatedLostFoundRoute
   AuthenticatedMarketplaceRoute: typeof AuthenticatedMarketplaceRoute
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
@@ -256,7 +236,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClubsRoute: AuthenticatedClubsRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLostFoundRoute: AuthenticatedLostFoundRoute,
   AuthenticatedMarketplaceRoute: AuthenticatedMarketplaceRoute,
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
