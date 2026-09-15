@@ -286,7 +286,7 @@ function ClubsPage() {
 
             <Dialog open={eventOpen} onOpenChange={setEventOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-brand-600 hover:bg-brand-700">
+                <Button variant="outline">
                   <Plus className="size-4 mr-2" /> New Event
                 </Button>
               </DialogTrigger>
@@ -331,6 +331,50 @@ function ClubsPage() {
                   <DialogFooter>
                     <Button type="submit" disabled={createEvent.isPending} className="bg-brand-600 hover:bg-brand-700">
                       {createEvent.isPending ? "Creating…" : "Create"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={annOpen} onOpenChange={setAnnOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-brand-600 hover:bg-brand-700">
+                  <Megaphone className="size-4 mr-2" /> Announcement
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Post an announcement</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={submitAnnouncement} className="space-y-4">
+                  <div>
+                    <Label htmlFor="ann_title">Title</Label>
+                    <Input id="ann_title" name="ann_title" placeholder="Workshop this Friday" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="ann_club_id">Club (optional)</Label>
+                    <Select name="ann_club_id">
+                      <SelectTrigger id="ann_club_id">
+                        <SelectValue placeholder="Campus-wide" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Campus-wide</SelectItem>
+                        {clubs.data?.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="ann_body">Body</Label>
+                    <Textarea id="ann_body" name="ann_body" rows={4} />
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={createAnnouncement.isPending} className="bg-brand-600 hover:bg-brand-700">
+                      {createAnnouncement.isPending ? "Posting…" : "Post"}
                     </Button>
                   </DialogFooter>
                 </form>
