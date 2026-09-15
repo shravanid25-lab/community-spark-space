@@ -393,6 +393,36 @@ function NotesPage() {
 
       <Section label="Notes" rows={filtered.filter((n) => n.category !== "assignment")} />
       <Section label="Assignments" rows={filtered.filter((n) => n.category === "assignment")} />
+
+      <Dialog open={preview !== null} onOpenChange={(v) => !v && setPreview(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="truncate">{preview?.title}</DialogTitle>
+          </DialogHeader>
+          {preview?.type === "image" ? (
+            <img
+              src={preview.url}
+              alt={preview.title}
+              className="w-full max-h-[70vh] object-contain rounded-lg bg-slate-50"
+            />
+          ) : preview?.type === "pdf" ? (
+            <iframe
+              src={preview.url}
+              title={preview.title}
+              className="w-full h-[70vh] rounded-lg border border-border"
+            />
+          ) : preview ? (
+            <div className="text-center py-10 space-y-3">
+              <p className="text-slate-600 text-sm">
+                This file type can't be shown here. Open it in a new tab instead.
+              </p>
+              <Button variant="outline" onClick={() => window.open(preview.url, "_blank")}>
+                Open file
+              </Button>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
