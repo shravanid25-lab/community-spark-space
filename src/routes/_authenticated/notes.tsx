@@ -444,8 +444,7 @@ function NotesPage() {
         </DialogContent>
       </Dialog>
 
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
