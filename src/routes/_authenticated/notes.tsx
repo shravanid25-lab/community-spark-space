@@ -249,6 +249,9 @@ function NotesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button size="sm" variant="ghost" onClick={() => openPreview(n)}>
+                        <Eye className="size-4 mr-1" /> Preview
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => download(n.file_path)}>
                         <Download className="size-4 mr-1" /> Download
                       </Button>
@@ -293,30 +296,26 @@ function NotesPage() {
             aria-label="Search notes"
           />
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-brand-600 hover:bg-brand-700 shrink-0">
-              <Upload className="size-4 mr-2" /> Upload notes
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            className="bg-brand-600 hover:bg-brand-700 shrink-0"
+            onClick={() => setUploadKind("note")}
+          >
+            <Upload className="size-4 mr-2" /> Upload notes
+          </Button>
+          <Button variant="outline" className="shrink-0" onClick={() => setUploadKind("assignment")}>
+            <Upload className="size-4 mr-2" /> Upload assignment
+          </Button>
+        </div>
+        <Dialog open={open} onOpenChange={(v) => setUploadKind(v ? (uploadKind ?? "note") : null)}>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Upload notes or assignment</DialogTitle>
+              <DialogTitle>
+                {uploadKind === "assignment" ? "Upload assignment" : "Upload notes"}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="category">Type</Label>
-                  <Select name="category" defaultValue="note">
-                    <SelectTrigger id="category">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="note">Note</SelectItem>
-                      <SelectItem value="assignment">Assignment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div>
                   <Label htmlFor="course_code">Course code</Label>
                   <Input id="course_code" name="course_code" placeholder="CS302" required />
