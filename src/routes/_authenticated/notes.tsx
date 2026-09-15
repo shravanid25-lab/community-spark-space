@@ -402,7 +402,7 @@ function NotesPage() {
       <Section label="Notes" rows={filtered.filter((n) => n.category !== "assignment")} />
       <Section label="Assignments" rows={filtered.filter((n) => n.category === "assignment")} />
 
-      <Dialog open={preview !== null} onOpenChange={(v) => !v && setPreview(null)}>
+      <Dialog open={preview !== null} onOpenChange={(v) => !v && closePreview()}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle className="truncate">{preview?.title}</DialogTitle>
@@ -414,11 +414,23 @@ function NotesPage() {
               className="w-full max-h-[70vh] object-contain rounded-lg bg-slate-50"
             />
           ) : preview?.type === "pdf" ? (
-            <iframe
-              src={preview.url}
-              title={preview.title}
-              className="w-full h-[70vh] rounded-lg border border-border"
-            />
+            <div className="space-y-3">
+              <object
+                data={preview.url}
+                type="application/pdf"
+                className="w-full h-[70vh] rounded-lg border border-border"
+                aria-label={preview.title}
+              >
+                <iframe
+                  src={preview.url}
+                  title={preview.title}
+                  className="w-full h-[70vh] rounded-lg border border-border"
+                />
+              </object>
+              <Button variant="outline" onClick={() => window.open(preview.url, "_blank")}>
+                Open in new tab
+              </Button>
+            </div>
           ) : preview ? (
             <div className="text-center py-10 space-y-3">
               <p className="text-slate-600 text-sm">
@@ -429,6 +441,9 @@ function NotesPage() {
               </Button>
             </div>
           ) : null}
+        </DialogContent>
+      </Dialog>
+
         </DialogContent>
       </Dialog>
     </div>
