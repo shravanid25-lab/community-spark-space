@@ -142,7 +142,7 @@ function NotesPage() {
       toast.success("Uploaded");
       qc.invalidateQueries({ queryKey: ["notes"] });
       qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
-      setOpen(false);
+      setUploadKind(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -165,6 +165,20 @@ function NotesPage() {
     window.open(data.signedUrl, "_blank");
   }
 
+  async function openPreview(n: NoteRow) {
+    const { data, error } = await supabase.storage
+      .from("campus-uploads")
+      .createSignedUrl(n.file_path, 600);
+    if (error) return toast.error(error.message);
+    const ext = n.file_path.split(".").pop()?.toLowerCase() ?? "";
+    const type = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext)
+      ? "image"
+      : ext === "pdf" || (n.file_type ?? "").includes("pdf")
+        ? "pdf"
+        : "other";
+    setPreview({ title: n.title, url: data.signedUrl, type });
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -176,7 +190,7 @@ function NotesPage() {
       title: form.get("title"),
       subject: form.get("subject") ?? "",
       semester: form.get("semester") ?? "",
-      category: form.get("category") || "note",
+      category: uploadKind ?? "note",
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
