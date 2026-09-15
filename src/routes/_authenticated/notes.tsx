@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Upload, Download, FileText, Trash2, Search } from "lucide-react";
+import { Upload, Download, FileText, Trash2, Search, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -68,7 +68,9 @@ type NoteRow = {
 
 function NotesPage() {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [uploadKind, setUploadKind] = useState<"note" | "assignment" | null>(null);
+  const open = uploadKind !== null;
+  const [preview, setPreview] = useState<{ title: string; url: string; type: string } | null>(null);
   const [query, setQuery] = useState("");
   const [subject, setSubject] = useState("all");
   const [semester, setSemester] = useState("all");
@@ -140,7 +142,7 @@ function NotesPage() {
       toast.success("Uploaded");
       qc.invalidateQueries({ queryKey: ["notes"] });
       qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
-      setOpen(false);
+      setUploadKind(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -163,6 +165,20 @@ function NotesPage() {
     window.open(data.signedUrl, "_blank");
   }
 
+  async function openPreview(n: NoteRow) {
+    const { data, error } = await supabase.storage
+      .from("campus-uploads")
+      .createSignedUrl(n.file_path, 600);
+    if (error) return toast.error(error.message);
+    const ext = n.file_path.split(".").pop()?.toLowerCase() ?? "";
+    const type = ["png", "jpg", "jpeg", "webp", "gif"].includes(ext)
+      ? "image"
+      : ext === "pdf" || (n.file_type ?? "").includes("pdf")
+        ? "pdf"
+        : "other";
+    setPreview({ title: n.title, url: data.signedUrl, type });
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -174,7 +190,7 @@ function NotesPage() {
       title: form.get("title"),
       subject: form.get("subject") ?? "",
       semester: form.get("semester") ?? "",
-      category: form.get("category") || "note",
+      category: uploadKind ?? "note",
       description: form.get("description") ?? "",
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
@@ -233,6 +249,9 @@ function NotesPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button size="sm" variant="ghost" onClick={() => openPreview(n)}>
+                        <Eye className="size-4 mr-1" /> Preview
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => download(n.file_path)}>
                         <Download className="size-4 mr-1" /> Download
                       </Button>
@@ -277,30 +296,26 @@ function NotesPage() {
             aria-label="Search notes"
           />
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-brand-600 hover:bg-brand-700 shrink-0">
-              <Upload className="size-4 mr-2" /> Upload notes
-            </Button>
-          </DialogTrigger>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            className="bg-brand-600 hover:bg-brand-700 shrink-0"
+            onClick={() => setUploadKind("note")}
+          >
+            <Upload className="size-4 mr-2" /> Upload notes
+          </Button>
+          <Button variant="outline" className="shrink-0" onClick={() => setUploadKind("assignment")}>
+            <Upload className="size-4 mr-2" /> Upload assignment
+          </Button>
+        </div>
+        <Dialog open={open} onOpenChange={(v) => setUploadKind(v ? (uploadKind ?? "note") : null)}>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Upload notes or assignment</DialogTitle>
+              <DialogTitle>
+                {uploadKind === "assignment" ? "Upload assignment" : "Upload notes"}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="category">Type</Label>
-                  <Select name="category" defaultValue="note">
-                    <SelectTrigger id="category">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="note">Note</SelectItem>
-                      <SelectItem value="assignment">Assignment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <div>
                   <Label htmlFor="course_code">Course code</Label>
                   <Input id="course_code" name="course_code" placeholder="CS302" required />
@@ -378,6 +393,36 @@ function NotesPage() {
 
       <Section label="Notes" rows={filtered.filter((n) => n.category !== "assignment")} />
       <Section label="Assignments" rows={filtered.filter((n) => n.category === "assignment")} />
+
+      <Dialog open={preview !== null} onOpenChange={(v) => !v && setPreview(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="truncate">{preview?.title}</DialogTitle>
+          </DialogHeader>
+          {preview?.type === "image" ? (
+            <img
+              src={preview.url}
+              alt={preview.title}
+              className="w-full max-h-[70vh] object-contain rounded-lg bg-slate-50"
+            />
+          ) : preview?.type === "pdf" ? (
+            <iframe
+              src={preview.url}
+              title={preview.title}
+              className="w-full h-[70vh] rounded-lg border border-border"
+            />
+          ) : preview ? (
+            <div className="text-center py-10 space-y-3">
+              <p className="text-slate-600 text-sm">
+                This file type can't be shown here. Open it in a new tab instead.
+              </p>
+              <Button variant="outline" onClick={() => window.open(preview.url, "_blank")}>
+                Open file
+              </Button>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
