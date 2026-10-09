@@ -161,6 +161,39 @@ export type Database = {
           },
         ]
       }
+      item_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          owner_id: string
+          participant_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          owner_id: string
+          participant_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          owner_id?: string
+          participant_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       lost_found_items: {
         Row: {
           created_at: string
