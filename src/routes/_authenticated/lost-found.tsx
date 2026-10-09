@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { ItemChatButton } from "@/components/item-chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -267,6 +268,13 @@ function LostFoundPage() {
                   </div>
                 ) : null}
               </div>
+              <ItemChatButton
+                itemType="lost_found"
+                itemId={i.id}
+                ownerId={i.reporter_id}
+                itemTitle={i.title}
+                label={me?.user?.id === i.reporter_id ? undefined : i.kind === "found" ? "This is mine — message finder" : "I found it — message owner"}
+              />
             </div>
           </div>
         ))}

@@ -13,6 +13,7 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
 
     // Remove content owned by this user (RLS-bypassing admin client, scoped to uid).
     await supabaseAdmin.from("borrow_requests").delete().eq("requester_id", uid);
+    await supabaseAdmin.from("item_messages").delete().or(`owner_id.eq.${uid},participant_id.eq.${uid}`);
     await supabaseAdmin.from("poll_votes").delete().eq("voter_id", uid);
     await supabaseAdmin.from("poll_options").delete().in(
       "poll_id",

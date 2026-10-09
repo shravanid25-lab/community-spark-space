@@ -26,6 +26,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus, Trash2, Check, HandHelping } from "lucide-react";
+import { ItemChatButton } from "@/components/item-chat";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/marketplace")({
@@ -530,6 +531,14 @@ function MarketplacePage() {
                     </div>
                   </div>
                 ) : null}
+                <ItemChatButton
+                  itemType="marketplace"
+                  itemId={i.id}
+                  ownerId={i.seller_id}
+                  itemTitle={i.title}
+                  label={me?.user?.id === i.seller_id ? undefined : isRent ? "Message lender" : "Message seller"}
+                />
+
               </div>
             </div>
           );
