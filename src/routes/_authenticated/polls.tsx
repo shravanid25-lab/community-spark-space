@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -144,6 +145,7 @@ function PollsPage() {
     const parsed = pollSchema.safeParse({ question: form.get("question"), options });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (blockProfanity(parsed.data.question, parsed.data.options)) return;
+    if (!(await aiOk([parsed.data.question, parsed.data.options]))) return;
     create.mutate({ question: parsed.data.question, options: parsed.data.options });
   }
 

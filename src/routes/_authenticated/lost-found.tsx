@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { ItemChatButton } from "@/components/item-chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +93,7 @@ function LostFoundPage() {
     }) => {
       const uid = me?.user?.id;
       if (!uid) throw new Error("Not signed in");
+      await aiModerate([payload.title, payload.description, payload.location], payload.file);
       let image_path: string | null = null;
       if (payload.file) {
         const path = `${uid}/lost-found/${Date.now()}-${payload.file.name}`;

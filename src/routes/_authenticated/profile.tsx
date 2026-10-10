@@ -11,6 +11,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAvatarUrl } from "@/lib/avatar";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -109,6 +110,7 @@ function ProfilePage() {
   const save = useMutation({
     mutationFn: async () => {
       if (!uid) throw new Error("Not signed in");
+      await aiModerate([fullName, department, bio, skills, interests]);
       const toList = (s: string) =>
         s
           .split(",")
@@ -144,6 +146,7 @@ function ProfilePage() {
     if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
     setUploading(true);
     try {
+      await aiModerate([], file);
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${uid}/avatar/${Date.now()}.${ext}`;
       const up = await supabase.storage.from("campus-uploads").upload(path, file);
