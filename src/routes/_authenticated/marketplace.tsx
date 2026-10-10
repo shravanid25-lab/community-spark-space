@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,6 +134,7 @@ function MarketplacePage() {
       rent_period: string | null;
     }) => {
       if (!uid) throw new Error("Not signed in");
+      await aiModerate([payload.title, payload.description], payload.file);
       let image_path: string | null = null;
       if (payload.file) {
         const path = `${uid}/marketplace/${Date.now()}-${payload.file.name}`;
@@ -246,10 +248,11 @@ function MarketplacePage() {
     });
   }
 
-  function onBorrowSubmit(e: React.FormEvent<HTMLFormElement>, itemId: string) {
+  async function onBorrowSubmit(e: React.FormEvent<HTMLFormElement>, itemId: string) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     if (blockProfanity(String(form.get("message") ?? ""))) return;
+    if (!(await aiOk([String(form.get("message") ?? "")]))) return;
     requestBorrow.mutate({
       item_id: itemId,
       message: String(form.get("message") ?? "").slice(0, 500),

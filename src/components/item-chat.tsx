@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -65,6 +66,7 @@ export function ItemChatButton({ itemType, itemId, ownerId, itemTitle, label }: 
   const send = useMutation({
     mutationFn: async (body: string) => {
       if (!uid || !activeParticipant) throw new Error("Not signed in");
+      await aiModerate([body]);
       const { error } = await supabase.from("item_messages").insert({
         item_type: itemType,
         item_id: itemId,

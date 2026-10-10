@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -145,6 +146,7 @@ function ClubsPage() {
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (blockProfanity(parsed.data.title, parsed.data.body)) return;
+    if (!(await aiOk([parsed.data.title, parsed.data.body]))) return;
     createAnnouncement.mutate({
       title: parsed.data.title,
       body: parsed.data.body ?? "",
@@ -225,6 +227,7 @@ function ClubsPage() {
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (blockProfanity(parsed.data.name, parsed.data.description)) return;
+    if (!(await aiOk([parsed.data.name, parsed.data.description]))) return;
     createClub.mutate({ name: parsed.data.name, description: parsed.data.description ?? "" });
   }
 
@@ -240,6 +243,7 @@ function ClubsPage() {
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.location)) return;
+    if (!(await aiOk([parsed.data.title, parsed.data.description, parsed.data.location]))) return;
     createEvent.mutate({
       title: parsed.data.title,
       description: parsed.data.description ?? "",

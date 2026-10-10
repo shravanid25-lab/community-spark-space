@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { useAvatarUrl } from "@/lib/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,6 +247,7 @@ function ProjectsPage() {
     });
     if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (blockProfanity(parsed.data.title, parsed.data.description, parsed.data.tags)) return;
+    if (!(await aiOk([parsed.data.title, parsed.data.description, parsed.data.tags]))) return;
     const tags = (parsed.data.tags ?? "")
       .split(",")
       .map((s) => s.trim())
@@ -816,6 +818,7 @@ function ProjectChat({
       if (!currentUserId) throw new Error("Not signed in");
       const trimmed = body.trim().slice(0, 2000);
       if (!trimmed) return;
+      await aiModerate([trimmed]);
       const { error } = await supabase
         .from("project_messages")
         .insert({ project_id: projectId, sender_id: currentUserId, body: trimmed });

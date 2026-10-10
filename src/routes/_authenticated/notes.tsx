@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useIsAdmin } from "@/components/app-shell";
 import { blockProfanity } from "@/lib/profanity";
+import { aiModerate, aiOk } from "@/lib/moderation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,6 +123,7 @@ function NotesPage() {
       const { data: userRes } = await supabase.auth.getUser();
       const user = userRes.user;
       if (!user) throw new Error("Not signed in");
+      await aiModerate([payload.title, payload.description, payload.subject, payload.course_code], payload.file);
       const path = `${user.id}/notes/${Date.now()}-${payload.file.name}`;
       const up = await supabase.storage.from("campus-uploads").upload(path, payload.file);
       if (up.error) throw up.error;

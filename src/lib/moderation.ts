@@ -23,3 +23,17 @@ export async function aiModerate(texts: unknown[], file?: File | null) {
   const res = await moderateContent({ data: { texts: strs, file: filePayload } });
   if (!res.allowed) throw new Error(`Rejected by AI safety check: ${res.reason || "content not allowed"}`);
 }
+
+/** Toast-based variant for form handlers: returns false (and shows why) if rejected. */
+export async function aiOk(texts: unknown[], file?: File | null): Promise<boolean> {
+  const { toast } = await import("sonner");
+  const id = toast.loading("Checking content…");
+  try {
+    await aiModerate(texts, file);
+    toast.dismiss(id);
+    return true;
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : "Safety check failed", { id });
+    return false;
+  }
+}
