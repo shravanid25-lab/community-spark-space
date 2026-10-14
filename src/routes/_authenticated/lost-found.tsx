@@ -1,3 +1,4 @@
+import { checkImageSafe } from "@/lib/nsfw";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
@@ -93,6 +94,7 @@ function LostFoundPage() {
     }) => {
       const uid = me?.user?.id;
       if (!uid) throw new Error("Not signed in");
+      await checkImageSafe(payload.file);
       await aiModerate([payload.title, payload.description, payload.location], payload.file);
       let image_path: string | null = null;
       if (payload.file) {

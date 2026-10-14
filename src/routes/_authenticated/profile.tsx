@@ -1,3 +1,4 @@
+import { checkImageSafe } from "@/lib/nsfw";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -146,6 +147,7 @@ function ProfilePage() {
     if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
     setUploading(true);
     try {
+      await checkImageSafe(file);
       await aiModerate([], file);
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${uid}/avatar/${Date.now()}.${ext}`;
