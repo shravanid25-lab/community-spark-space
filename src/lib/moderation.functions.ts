@@ -64,10 +64,10 @@ export const moderateContent = createServerFn({ method: "POST" })
     });
 
     if (!res.ok || !res.body) {
-      if (res.status === 402) return { allowed: false, reason: "AI safety check is out of credits. Please try later." };
-      if (res.status === 429) return { allowed: false, reason: "Too many checks right now. Try again in a moment." };
-      console.error("moderation error", res.status, await res.text().catch(() => ""));
-      return { allowed: false, reason: "Safety check failed. Please try again." };
+      // AI unavailable (out of credits, busy, outage): don't block normal students.
+      // The built-in offensive-word filter still runs on every post.
+      console.error("moderation unavailable", res.status, await res.text().catch(() => ""));
+      return { allowed: true, reason: "" };
     }
 
     const reader = res.body.getReader();
@@ -100,6 +100,6 @@ export const moderateContent = createServerFn({ method: "POST" })
       const parsed = JSON.parse(out) as { allowed: boolean; reason: string };
       return { allowed: !!parsed.allowed, reason: parsed.reason || "" };
     } catch {
-      return { allowed: false, reason: "Safety check failed. Please try again." };
+      return { allowed: true, reason: "" };
     }
   });
