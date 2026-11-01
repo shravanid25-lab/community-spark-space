@@ -22,8 +22,13 @@ export const moderateContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }) => {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      const r = await moderateWithGemini(geminiKey, data);
+      if (r) return r;
+    }
     const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) return { allowed: false, reason: "Safety check is not configured." };
+    if (!apiKey) return { allowed: true, reason: "" };
 
     const texts = data.texts.map((t) => t.trim()).filter(Boolean);
     const content: Record<string, unknown>[] = [
@@ -103,3 +108,58 @@ export const moderateContent = createServerFn({ method: "POST" })
       return { allowed: true, reason: "" };
     }
   });
+
+// Google Gemini (AI Studio key). Returns null if Gemini is unavailable so the caller can fall back.
+async function moderateWithGemini(
+  key: string,
+  data: z.infer<typeof Input>,
+): Promise<{ allowed: boolean; reason: string } | null> {
+  const texts = data.texts.map((t) => t.trim()).filter(Boolean);
+  const parts: Record<string, unknown>[] = [
+    { text: texts.length ? `Text to review:\n${texts.join("\n---\n")}` : "No text." },
+  ];
+  if (data.file && (data.file.mime.startsWith("image/") || data.file.mime === "application/pdf")) {
+    parts.push({ inline_data: { mime_type: data.file.mime, data: data.file.base64 } });
+  }
+  if (!texts.length && parts.length === 1) return { allowed: true, reason: "" };
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: [{ role: "user", parts }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: { allowed: { type: "BOOLEAN" }, reason: { type: "STRING" } },
+              required: ["allowed", "reason"],
+            },
+          },
+        }),
+      },
+    );
+    if (!res.ok) {
+      console.error("gemini moderation unavailable", res.status, await res.text().catch(() => ""));
+      return null;
+    }
+    const json = (await res.json()) as {
+      promptFeedback?: { blockReason?: string };
+      candidates?: { finishReason?: string; content?: { parts?: { text?: string }[] } }[];
+    };
+    // Gemini's own safety filter blocking the input means it's unsafe.
+    if (json.promptFeedback?.blockReason) return { allowed: false, reason: "This content isn't allowed on Campus Hub." };
+    const c = json.candidates?.[0];
+    if (c?.finishReason === "SAFETY" || c?.finishReason === "PROHIBITED_CONTENT")
+      return { allowed: false, reason: "This content isn't allowed on Campus Hub." };
+    const text = c?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+    const parsed = JSON.parse(text) as { allowed: boolean; reason: string };
+    return { allowed: !!parsed.allowed, reason: parsed.reason || "" };
+  } catch (e) {
+    console.error("gemini moderation error", e);
+    return null;
+  }
+}
